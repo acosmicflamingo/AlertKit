@@ -21,29 +21,20 @@
 
 import UIKit
 
-/**
- SPAlert: Layout model for view.
- */
+/// SPAlert: Layout model for view.
 open class SPAlertLayout {
-    
-    /**
-     SPAlert: Icon size.
-     */
-    open var iconSize: CGSize
-    
-    /**
-     SPAlert: Alert margings for each side.
-     */
-    open var margins: UIEdgeInsets
-    
-    /**
-     SPAlert: Space between icon and title if both available.
-     */
-    open var spaceBetweenIconAndTitle: CGFloat
-    
-    public init(iconSize: CGSize, margins: UIEdgeInsets, spaceBetweenIconAndTitle: CGFloat) {
-        self.iconSize = iconSize
-        self.margins = margins
-        self.spaceBetweenIconAndTitle = spaceBetweenIconAndTitle
-    }
+  /// SPAlert: Icon size.
+  open var iconSize: CGSize
+
+  /// SPAlert: Alert margings for each side.
+  open var margins: UIEdgeInsets
+
+  /// SPAlert: Space between icon and title if both available.
+  open var spaceBetweenIconAndTitle: CGFloat
+
+  public init(iconSize: CGSize, margins: UIEdgeInsets, spaceBetweenIconAndTitle: CGFloat) {
+    self.iconSize = iconSize
+    self.margins = margins
+    self.spaceBetweenIconAndTitle = spaceBetweenIconAndTitle
+  }
 }

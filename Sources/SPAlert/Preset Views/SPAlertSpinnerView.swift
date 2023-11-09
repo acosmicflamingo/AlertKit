@@ -22,30 +22,28 @@
 import UIKit
 
 class SPAlertSpinnerView: UIView {
-    
-    let activityIndicatorView: UIActivityIndicatorView = {
-        if #available(iOS 13.0, *) {
-            return UIActivityIndicatorView(style: .large)
-        } else {
-            return UIActivityIndicatorView()
-        }
-    }()
-    
-    init() {
-        super.init(frame: .zero)
-        self.backgroundColor = .clear
-        addSubview(activityIndicatorView)
-        activityIndicatorView.startAnimating()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        activityIndicatorView.sizeToFit()
-        activityIndicatorView.center = .init(x: frame.width / 2, y: frame.height / 2)
-    }
+  let activityIndicatorView: UIActivityIndicatorView = if #available(iOS 13.0, *) {
+    .init(style: .large)
+  } else {
+    .init()
+  }
+
+  init() {
+    super.init(frame: .zero)
+    self.backgroundColor = .clear
+    addSubview(activityIndicatorView)
+    activityIndicatorView.startAnimating()
+  }
+
+  @available(*, unavailable)
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    activityIndicatorView.sizeToFit()
+    activityIndicatorView.center = .init(x: frame.width / 2, y: frame.height / 2)
+  }
 
 }

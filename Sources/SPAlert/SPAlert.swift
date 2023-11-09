@@ -21,85 +21,87 @@
 
 import UIKit
 
-/**
- SPAlert: Acess level. Here you get ready-use methods.
- Recomended use it.
- */
+/// SPAlert: Acess level. Here you get ready-use methods.
+/// Recomended use it.
 @available(iOSApplicationExtension, unavailable)
 public enum SPAlert {
-    
-    /**
-     SPAlert: Present alert with preset and custom haptic.
-     
-     - parameter title: Title text in alert.
-     - parameter message: Subtitle text in alert. Optional.
-     - parameter preset: Icon ready-use style or custom image.
-     - parameter haptic: Haptic response with present. Default is `.success`.
-     - parameter completion: Will call with dismiss alert.
-     */
-    public static func present(title: String, message: String? = nil, preset: SPAlertIconPreset, haptic: SPAlertHaptic, completion: (() -> Void)? = nil) {
-        let alertView = SPAlertView(title: title, message: message, preset: preset)
-        alertView.present(haptic: haptic, completion: completion)
-    }
-    
-    /**
-     SPAlert: Present alert with preset and automatically detect type haptic.
-     
-     - parameter title: Title text in alert.
-     - parameter message: Subtitle text in alert. Optional.
-     - parameter preset: Icon ready-use style or custom image.
-     - parameter completion: Will call with dismiss alert.
-     */
-    public static func present(title: String, message: String? = nil, preset: SPAlertIconPreset, completion: (() -> Void)? = nil) {
-        let alertView = SPAlertView(title: title, message: message, preset: preset)
-        alertView.present(haptic: preset.haptic, completion: completion)
-    }
-    
-    /**
-     SPAlert: Show only message, without title and icon.
-     
-     - parameter message: Title text.
-     - parameter haptic: Haptic response with present. Default is `.success`.
-     - parameter completion: Will call with dismiss alert.
-     */
-    public static func present(message: String, haptic: SPAlertHaptic, completion: (() -> Void)? = nil) {
-        let alertView = SPAlertView(message: message)
-        alertView.present(haptic: haptic, completion: completion)
-    }
-    
-    /**
-     SPAlert: Show present only.
-     
-     - parameter completion: Will call with dismiss alert.
-     */
-    public static func present(preset: SPAlertIconPreset, completion: (() -> Void)? = nil) {
-        let alertView = SPAlertView(preset: preset)
-        alertView.present(haptic: preset.haptic, completion: completion)
-    }
-    
-    /**
-     SPAlert: Dismiss all `SPAlert` views.
-     */
-    public static func dismiss() {
-        if #available(iOS 13.0, *) {
-            for scene in UIApplication.shared.connectedScenes {
-                if let windowScene = scene as? UIWindowScene {
-                    windowScene.windows.forEach { window in
-                        for view in window.subviews {
-                            if let alertView = view as? SPAlertView {
-                                alertView.dismiss()
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            guard let window = UIApplication.shared.keyWindow else { return }
+  /// SPAlert: Present alert with preset and custom haptic.
+  ///
+  /// - parameter title: Title text in alert.
+  /// - parameter message: Subtitle text in alert. Optional.
+  /// - parameter preset: Icon ready-use style or custom image.
+  /// - parameter haptic: Haptic response with present. Default is `.success`.
+  /// - parameter completion: Will call with dismiss alert.
+  public static func present(
+    title: String,
+    message: String? = nil,
+    preset: SPAlertIconPreset,
+    haptic: SPAlertHaptic,
+    completion: (() -> Void)? = nil
+  ) {
+    let alertView = SPAlertView(title: title, message: message, preset: preset)
+    alertView.present(haptic: haptic, completion: completion)
+  }
+
+  /// SPAlert: Present alert with preset and automatically detect type haptic.
+  ///
+  /// - parameter title: Title text in alert.
+  /// - parameter message: Subtitle text in alert. Optional.
+  /// - parameter preset: Icon ready-use style or custom image.
+  /// - parameter completion: Will call with dismiss alert.
+  public static func present(
+    title: String,
+    message: String? = nil,
+    preset: SPAlertIconPreset,
+    completion: (() -> Void)? = nil
+  ) {
+    let alertView = SPAlertView(title: title, message: message, preset: preset)
+    alertView.present(haptic: preset.haptic, completion: completion)
+  }
+
+  /// SPAlert: Show only message, without title and icon.
+  ///
+  /// - parameter message: Title text.
+  /// - parameter haptic: Haptic response with present. Default is `.success`.
+  /// - parameter completion: Will call with dismiss alert.
+  public static func present(
+    message: String,
+    haptic: SPAlertHaptic,
+    completion: (() -> Void)? = nil
+  ) {
+    let alertView = SPAlertView(message: message)
+    alertView.present(haptic: haptic, completion: completion)
+  }
+
+  /// SPAlert: Show present only.
+  ///
+  /// - parameter completion: Will call with dismiss alert.
+  public static func present(preset: SPAlertIconPreset, completion: (() -> Void)? = nil) {
+    let alertView = SPAlertView(preset: preset)
+    alertView.present(haptic: preset.haptic, completion: completion)
+  }
+
+  /// SPAlert: Dismiss all `SPAlert` views.
+  public static func dismiss() {
+    if #available(iOS 13.0, *) {
+      for scene in UIApplication.shared.connectedScenes {
+        if let windowScene = scene as? UIWindowScene {
+          windowScene.windows.forEach { window in
             for view in window.subviews {
-                if let alertView = view as? SPAlertView {
-                    alertView.dismiss()
-                }
+              if let alertView = view as? SPAlertView {
+                alertView.dismiss()
+              }
             }
+          }
         }
+      }
+    } else {
+      guard let window = UIApplication.shared.keyWindow else { return }
+      for view in window.subviews {
+        if let alertView = view as? SPAlertView {
+          alertView.dismiss()
+        }
+      }
     }
+  }
 }

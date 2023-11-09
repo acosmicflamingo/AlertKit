@@ -21,27 +21,24 @@
 
 import UIKit
 
-/**
- SPAlert: Wrapper of haptic styles.
- */
+/// SPAlert: Wrapper of haptic styles.
 public enum SPAlertHaptic {
-    
-    case success
-    case warning
-    case error
-    case none
-    
-    func impact() {
-        let generator = UINotificationFeedbackGenerator()
-        switch self {
-        case .success:
-            generator.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.success)
-        case .warning:
-            generator.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.warning)
-        case .error:
-            generator.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.error)
-        case .none:
-            break
-        }
+  case success
+  case warning
+  case error
+  case none
+
+  func impact() {
+    let generator = UINotificationFeedbackGenerator()
+    switch self {
+    case .success:
+      generator.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.success)
+    case .warning:
+      generator.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.warning)
+    case .error:
+      generator.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.error)
+    case .none:
+      break
     }
+  }
 }
