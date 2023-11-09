@@ -1,5 +1,5 @@
 // The MIT License (MIT)
-// Copyright © 2020 Ivan Vorobei (hello@ivanvorobei.by)
+// Copyright © 2020 Ivan Vorobei (hello@ivanvorobei.io)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,9 @@ public class SPAlertIconDoneView: UIView, SPAlertIconAnimatable {
     layer.addSublayer(animatableLayer)
 
     let animation = CABasicAnimation(keyPath: "strokeEnd")
-    animation.duration = 0.3
+    animation.duration = UIAccessibility.isReduceMotionEnabled
+      ? 0.01
+      : 0.3
     animation.fromValue = 0
     animation.toValue = 1
     animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)

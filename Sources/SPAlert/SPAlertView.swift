@@ -1,5 +1,5 @@
 // The MIT License (MIT)
-// Copyright © 2020 Ivan Vorobei (hello@ivanvorobei.by)
+// Copyright © 2020 Ivan Vorobei (hello@ivanvorobei.io)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -66,6 +66,10 @@ open class SPAlertView: UIView {
       UIVisualEffectView(effect: UIBlurEffect(style: .systemThickMaterial))
     } else {
       UIVisualEffectView(effect: UIBlurEffect(style: .light))
+    }
+    if UIAccessibility.isReduceTransparencyEnabled {
+      view.effect = nil
+      view.backgroundColor = UIColor.systemGray6
     }
     view.isUserInteractionEnabled = false
     return view
@@ -134,6 +138,7 @@ open class SPAlertView: UIView {
     let label = UILabel()
     label.font = UIFont.preferredFont(forTextStyle: .title2, weight: .bold)
     label.numberOfLines = 0
+    label.lineBreakMode = .byWordWrapping
     let style = NSMutableParagraphStyle()
     style.lineSpacing = 3
     style.alignment = .center
@@ -142,6 +147,8 @@ open class SPAlertView: UIView {
       attributes: [.paragraphStyle: style]
     )
     label.textColor = defaultContentColor
+    label.adjustsFontForContentSizeCategory = true
+    label.maximumContentSizeCategory = .extraExtraLarge
     titleLabel = label
     addSubview(label)
   }
@@ -150,6 +157,7 @@ open class SPAlertView: UIView {
     let label = UILabel()
     label.font = UIFont.preferredFont(forTextStyle: .body)
     label.numberOfLines = 0
+    label.lineBreakMode = .byWordWrapping
     let style = NSMutableParagraphStyle()
     style.lineSpacing = 2
     style.alignment = .center
@@ -158,6 +166,8 @@ open class SPAlertView: UIView {
       attributes: [.paragraphStyle: style]
     )
     label.textColor = defaultContentColor
+    label.adjustsFontForContentSizeCategory = true
+    label.maximumContentSizeCategory = .extraExtraLarge
     subtitleLabel = label
     addSubview(label)
   }
@@ -176,29 +186,23 @@ open class SPAlertView: UIView {
   // MARK: - Present
 
   fileprivate var presentDismissDuration: TimeInterval = 0.2
-  fileprivate var presentDismissScale: CGFloat = 0.8
+  fileprivate var presentDismissScale: CGFloat = UIAccessibility.isReduceMotionEnabled
+    ? 1.0
+    : 0.8
 
-  fileprivate var defaultContentColor: UIColor {
-    let darkColor = UIColor(red: 127 / 255, green: 127 / 255, blue: 129 / 255, alpha: 1)
-    let lightColor = UIColor(red: 88 / 255, green: 87 / 255, blue: 88 / 255, alpha: 1)
-    if #available(iOS 12.0, *) {
-      guard let interfaceStyle = self.window?.traitCollection.userInterfaceStyle else {
-        return lightColor
-      }
-      switch interfaceStyle {
-      case .light: return lightColor
-      case .dark: return darkColor
-      case .unspecified: return lightColor
-      @unknown default: return lightColor
-      }
-    } else {
-      return lightColor
-    }
-  }
+  fileprivate var defaultContentColor = UIColor(
+    light: .init(white: 0.345, alpha: 1.0),
+    dark: .init(white: 0.704, alpha: 1.0),
+    lightHC: .init(white: 0.188, alpha: 1.0),
+    darkHC: .init(white: 0.902, alpha: 1.0)
+  )
 
   open func present(haptic: SPAlertHaptic = .success, completion: (() -> Void)? = nil) {
     if presentWindow == nil {
-      presentWindow = UIApplication.shared.keyWindow
+      let scene = UIApplication.shared.connectedScenes.first(
+        where: { $0 is UIWindowScene }
+      ) as? UIWindowScene
+      presentWindow = scene?.keyWindow
     }
 
     guard let window = presentWindow else { return }
@@ -225,13 +229,21 @@ open class SPAlertView: UIView {
 
     haptic.impact()
 
+    if UIAccessibility.isReduceMotionEnabled {
+      if let iconView = iconView as? SPAlertIconAnimatable {
+        iconView.animate()
+      }
+    }
+
     UIView.animate(withDuration: presentDismissDuration, animations: {
       self.alpha = 1
       self.transform = CGAffineTransform.identity
     }, completion: { [weak self] _ in
       guard let self else { return }
 
-      if let iconView = iconView as? SPAlertIconAnimatable {
+      if
+        let iconView = iconView as? SPAlertIconAnimatable,
+        !UIAccessibility.isReduceMotionEnabled {
         iconView.animate()
       }
 
@@ -251,7 +263,10 @@ open class SPAlertView: UIView {
         y: self.presentDismissScale
       )
     }, completion: { [weak self] _ in
+      UIAccessibility.post(notification: .screenChanged, argument: self?.presentWindow)
       self?.removeFromSuperview()
+      // Make sure that assistive technology puts focus on the
+      // present window again
       self?.completion?()
     })
   }
