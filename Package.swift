@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "SPAlert",
     platforms: [
-        .iOS(.v11)
+        .iOS(.v15)
     ],
     products: [
         .library(
