@@ -209,9 +209,12 @@ open class SPAlertView: UIView {
 
     window.addSubview(self)
 
-    // Prepare for present
-
-    self.completion = completion
+    // Prepare for present, but only override if completion closure
+    // is non-nil. Otherwise, it will always overwrite whatever was
+    // previously set
+    if let completion {
+      self.completion = completion
+    }
 
     alpha = 0
     setFrame()
@@ -263,11 +266,13 @@ open class SPAlertView: UIView {
         y: self.presentDismissScale
       )
     }, completion: { [weak self] _ in
-      UIAccessibility.post(notification: .screenChanged, argument: self?.presentWindow)
-      self?.removeFromSuperview()
+      guard let self else { return }
+
+      UIAccessibility.post(notification: .screenChanged, argument: presentWindow)
+      removeFromSuperview()
       // Make sure that assistive technology puts focus on the
       // present window again
-      self?.completion?()
+      completion?()
     })
   }
 
