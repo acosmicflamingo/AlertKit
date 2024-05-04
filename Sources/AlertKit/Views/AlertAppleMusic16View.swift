@@ -21,8 +21,10 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
     
     fileprivate weak var viewForPresent: UIView?
     fileprivate var presentDismissDuration: TimeInterval = 0.2
-    fileprivate var presentDismissScale: CGFloat = 0.8
-    
+    fileprivate var presentDismissScale: CGFloat = UIAccessibility.isReduceMotionEnabled
+      ? 1.0
+      : 0.8
+
     fileprivate var completion: (()->Void)? = nil
     
     private lazy var backgroundView: UIVisualEffectView = {
@@ -37,6 +39,10 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
             return UIVisualEffectView(effect: UIBlurEffect(style: .light))
             #endif
         }()
+        if UIAccessibility.isReduceTransparencyEnabled {
+            view.effect = nil
+            view.backgroundColor = UIColor.systemGray6
+        }
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -45,25 +51,21 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
         
         if let title = title {
             let label = UILabel()
+            label.text = title
+            label.textAlignment = .center
             label.font = UIFont.preferredFont(forTextStyle: .title2, weight: .bold)
             label.numberOfLines = 0
-            let style = NSMutableParagraphStyle()
-            style.lineSpacing = 3
-            style.alignment = .center
-            label.attributedText = NSAttributedString(string: title, attributes: [.paragraphStyle: style])
             titleLabel = label
         } else {
             self.titleLabel = nil
         }
-        
+
         if let subtitle = subtitle {
             let label = UILabel()
+            label.text = subtitle
+            label.textAlignment = .center
             label.font = UIFont.preferredFont(forTextStyle: .body)
             label.numberOfLines = 0
-            let style = NSMutableParagraphStyle()
-            style.lineSpacing = 2
-            style.alignment = .center
-            label.attributedText = NSAttributedString(string: subtitle, attributes: [.paragraphStyle: style])
             subtitleLabel = label
         } else {
             self.subtitleLabel = nil
@@ -143,14 +145,26 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
         // Present
         
         haptic?.impact()
-        
+
+        // Announce text to VoiceOver users
+        UIAccessibility.post(notification: .screenChanged, argument: self)
+
+        if UIAccessibility.isReduceMotionEnabled {
+            if let iconView = self.iconView as? AlertIconAnimatable {
+                iconView.animate()
+            }
+        }
+
         UIView.animate(withDuration: presentDismissDuration, animations: {
             self.alpha = 1
             self.transform = CGAffineTransform.identity
         }, completion: { [weak self] finished in
             guard let self = self else { return }
             
-            if let iconView = self.iconView as? AlertIconAnimatable {
+            if 
+              let iconView = self.iconView as? AlertIconAnimatable,
+              !UIAccessibility.isReduceMotionEnabled
+            {
                 iconView.animate()
             }
             
@@ -174,6 +188,9 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
             self.alpha = 0
             self.transform = self.transform.scaledBy(x: self.presentDismissScale, y: self.presentDismissScale)
         }, completion: { [weak self] finished in
+            // Make sure that assistive technology puts focus on the
+            // present window again
+            UIAccessibility.post(notification: .screenChanged, argument: self?.viewForPresent)
             self?.removeFromSuperview()
             customCompletion?()
         })
@@ -200,7 +217,28 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
         if let subtitleLabel = self.subtitleLabel {
             let yPosition: CGFloat = {
                 if let titleLabel = self.titleLabel {
-                    return titleLabel.frame.maxY + 4
+                    let offset: CGFloat
+                    switch traitCollection.preferredContentSizeCategory {
+                    case .accessibilityExtraExtraExtraLarge,
+                        .accessibilityExtraExtraLarge,
+                        .accessibilityExtraLarge,
+                        .accessibilityLarge,
+                        .accessibilityMedium:
+                        offset = 12.0
+
+                    case .extraExtraExtraLarge:
+                        offset = 10.0
+
+                    case .extraExtraLarge:
+                        offset = 8.0
+
+                    case .extraLarge:
+                        offset = 6.0
+
+                    default:
+                        offset = 4.0
+                    }
+                    return titleLabel.frame.maxY + offset
                 } else {
                     return layoutMargins.top
                 }
@@ -210,7 +248,27 @@ public class AlertAppleMusic16View: UIView, AlertViewProtocol {
     }
     
     public override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let width: CGFloat = 250
+        let width: CGFloat
+        switch traitCollection.preferredContentSizeCategory {
+        case .accessibilityExtraExtraExtraLarge,
+            .accessibilityExtraExtraLarge,
+            .accessibilityExtraLarge,
+            .accessibilityLarge,
+            .accessibilityMedium:
+            width = 350
+
+        case .extraExtraExtraLarge:
+            width = 325
+
+        case .extraExtraLarge:
+            width = 300
+
+        case .extraLarge:
+            width = 275
+
+        default:
+            width = 250
+        }
         self.frame = .init(x: frame.origin.x, y: frame.origin.y, width: width, height: frame.height)
         layoutSubviews()
         let height = subtitleLabel?.frame.maxY ?? titleLabel?.frame.maxY ?? iconView?.frame.maxY ?? .zero

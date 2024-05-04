@@ -27,15 +27,17 @@ public class AlertIconDoneView: UIView, AlertIconAnimatable {
         animatableLayer.lineWidth = lineThick
         animatableLayer.lineCap = .round
         animatableLayer.lineJoin = .round
-        animatableLayer.strokeEnd = 0
+        animatableLayer.strokeEnd = UIAccessibility.isReduceMotionEnabled ? 1 : 0
         layer.addSublayer(animatableLayer)
         
-        let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.duration = 0.3
-        animation.fromValue = 0
-        animation.toValue = 1
-        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        animatableLayer.strokeEnd = 1
-        animatableLayer.add(animation, forKey: "animation")
+        if !UIAccessibility.isReduceMotionEnabled {
+            let animation = CABasicAnimation(keyPath: "strokeEnd")
+            animation.duration = 0.3
+            animation.fromValue = 0
+            animation.toValue = 1
+            animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            animatableLayer.strokeEnd = 1
+            animatableLayer.add(animation, forKey: "animation")
+        }
     }
 }
